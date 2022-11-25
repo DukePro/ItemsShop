@@ -100,10 +100,11 @@
     class Seller
     {
         private int _money;
+        private int _lastIndex;
+
         private List<Item> _items = new List<Item>();
         private List<string> _names = new List<string>(new string[] { "Пятка динозавра", "Жеваный паук", "Коготь овцы", "Рог слизня", "Волосы лысой выхухоли", "Меч из грязи", "Зерно крысы" });
         private List<int> _prices = new List<int>(new int[] { 100, 15, 30, 200, 150, 500, 250 });
-        private int _lastIndex;
 
         public void CreateSampleItems()
         {
@@ -146,6 +147,7 @@
         public bool TryGetItem(out Item item)
         {
             item = null;
+
             Console.WriteLine("Введите Id предмета:");
             int id = GetNumber();
 
@@ -183,6 +185,7 @@
         private int GetNumber()
         {
             int parsedNumber = 0;
+
             bool isParsed = false;
 
             while (isParsed == false)
@@ -222,6 +225,7 @@
     class Byer
     {
         private int _money = 0;
+
         private List<Item> _bag = new List<Item>();
 
         public Byer(int money)
