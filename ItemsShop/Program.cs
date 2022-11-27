@@ -40,7 +40,7 @@
                 {
                     case MenuShowItems:
                         _seller.ShowMoney();
-                        _seller.ShowAllItems();
+                        _seller.ShowBag();
                         break;
 
                     case MenuBuyItem:
@@ -96,13 +96,33 @@
 
     class Agent
     {
-        protected int _money;
+        protected int Money;
 
-        protected List<Item> _bag = new List<Item>();
+        protected List<Item> Bag = new List<Item>();
 
         public Agent(int money)
         {
-            _money = money;
+            Money = money;
+        }
+
+        public void ShowMoney()
+        {
+            Console.WriteLine("Монеты: " + Money);
+        }
+
+        public void ShowBag()
+        {
+            if (Bag.Count > 0)
+            {
+                foreach (Item item in Bag)
+                {
+                    item.ShowItemInfo(item);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Нет товаров");
+            }
         }
     }
 
@@ -110,45 +130,24 @@
     {
         private int _lastIndex;
 
-        private List<string> _names = new List<string>(new string[] { "Пятка динозавра", "Жеваный паук", "Коготь овцы", "Рог слизня", "Волосы лысой выхухоли", "Меч из грязи", "Зерно крысы" });
-        private List<int> _prices = new List<int>(new int[] { 100, 15, 30, 200, 150, 500, 250 });
-
         public Seller(int money) : base(money)
         {
-
         }
 
         public void CreateSampleItems()
         {
-            for (int i = 0; i < _names.Count; i++)
+        List<string> names = new List<string>(new string[] { "Пятка динозавра", "Жеваный паук", "Коготь овцы", "Рог слизня", "Волосы лысой выхухоли", "Меч из грязи", "Зерно крысы" });
+        List<int> prices = new List<int>(new int[] { 100, 15, 30, 200, 150, 500, 250 });
+
+            for (int i = 0; i < names.Count; i++)
             {
-                _bag.Add(new Item(++_lastIndex, _names[i], _prices[i]));
+                Bag.Add(new Item(++_lastIndex, names[i], prices[i]));
             }
         }
 
         public void TakeMoney(int money)
         {
-            _money = _money + money;
-        }
-
-        public void ShowMoney()
-        {
-            Console.WriteLine("Монет у продавца: " + _money);
-        }
-
-        public void ShowAllItems()
-        {
-            if (_bag.Count > 0)
-            {
-                foreach (var item in _bag)
-                {
-                    ItemInfo(item);
-                }
-            }
-            else
-            {
-                Console.WriteLine("Товар кончился");
-            }
+            Money = Money + money;
         }
 
         public bool TryGetItem(out Item item)
@@ -158,11 +157,11 @@
             Console.WriteLine("Введите Id предмета:");
             int id = GetNumber();
 
-            for (int i = 0; i < _bag.Count; i++)
+            for (int i = 0; i < Bag.Count; i++)
             {
-                if (_bag[i].Id == id)
+                if (Bag[i].Id == id)
                 {
-                    item = _bag[i];
+                    item = Bag[i];
                     return true;
                 }
             }
@@ -173,7 +172,7 @@
 
         public bool CheckItemsAvailable()
         {
-            if (_bag.Count > 0)
+            if (Bag.Count > 0)
             {
                 return true;
             }
@@ -186,14 +185,14 @@
 
         public void RemoveItem(Item item)
         {
-            _bag.Remove(item);
+            Bag.Remove(item);
         }
 
-        private void ItemInfo(Item item)
+        private void ShowItemInfo(Item item)
         {
             Console.WriteLine($"Индекс: {item.Id} | Товар: {item.Name} | Цена: {item.Price}");
         }
-       
+
         private int GetNumber()
         {
             int parsedNumber = 0;
@@ -227,30 +226,29 @@
             Name = name;
             Price = price;
         }
+
+        public void ShowItemInfo(Item item)
+        {
+            Console.WriteLine($"Индекс: {item.Id} | Товар: {item.Name} | Цена: {item.Price}");
+        }
     }
 
     class Byer : Agent
     {
-        public Byer(int money) : base(money)
+        public Byer(int money) : base(money) 
         {
-
-        }
-
-        public void ShowMoney()
-        {
-            Console.WriteLine("Ваши монеты: " + _money);
         }
 
         public int BuyItem(Item item)
         {
-            _bag.Add(item);
-            _money = _money - item.Price;
+            Bag.Add(item);
+            Money = Money - item.Price;
             return item.Price;
         }
 
         public bool CheckBuy(int price)
         {
-            if (price < _money)
+            if (price < Money)
             {
                 return true;
             }
@@ -259,26 +257,6 @@
                 Console.WriteLine("Не хватает денег =( ");
                 return false;
             }
-        }
-
-        public void ShowBag()
-        {
-            if (_bag.Count > 0)
-            {
-                foreach (var item in _bag)
-                {
-                    ItemInfo(item);
-                }
-            }
-            else
-            {
-                Console.WriteLine("В сумке пусто");
-            }
-        }
-
-        private void ItemInfo(Item item)
-        {
-            Console.WriteLine($"Индекс: {item.Id} | Товар: {item.Name} | Цена: {item.Price}");
         }
     }
 }
