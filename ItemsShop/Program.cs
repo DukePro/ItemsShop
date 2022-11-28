@@ -63,7 +63,7 @@
         {
             Item item;
 
-            if (CheckSell(out item))
+            if (CheckCanSell(out item))
             {
                 _seller.RemoveItem(item);
                 _seller.TakeMoney(_byer.BuyItem(item));
@@ -75,7 +75,7 @@
             }
         }
 
-        private bool CheckSell(out Item item)
+        private bool CheckCanSell(out Item item)
         {
             item = null;
 
@@ -186,11 +186,6 @@
         public void RemoveItem(Item item)
         {
             Bag.Remove(item);
-        }
-
-        private void ShowItemInfo(Item item)
-        {
-            Console.WriteLine($"Индекс: {item.Id} | Товар: {item.Name} | Цена: {item.Price}");
         }
 
         private int GetNumber()
