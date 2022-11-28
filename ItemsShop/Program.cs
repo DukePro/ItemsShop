@@ -83,7 +83,7 @@
             {
                 if (_seller.TryGetItem(out item))
                 {
-                    if (_byer.CheckBuy(item.Price))
+                    if (_byer.CheckCanBuy(item.Price))
                     {
                         return true;
                     }
@@ -246,7 +246,7 @@
             return item.Price;
         }
 
-        public bool CheckBuy(int price)
+        public bool CheckCanBuy(int price)
         {
             if (price < Money)
             {
