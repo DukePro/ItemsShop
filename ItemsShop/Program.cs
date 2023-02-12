@@ -5,7 +5,7 @@
         static void Main()
         {
             Shop menu = new Shop();
-            menu.ShowMainMenu();
+            menu.ActivateShopMenu();
         }
     }
 
@@ -17,15 +17,13 @@
         private const string MenuExit = "0";
 
         private Seller _seller = new Seller(1000);
-        private Byer _byer = new Byer(1000);
+        private Buyer _buyer = new Buyer(1500);
 
-        public void ShowMainMenu()
+        public void ActivateShopMenu()
         {
             bool isExit = false;
 
             string userInput;
-
-            _seller.CreateSampleItems();
 
             while (isExit == false)
             {
@@ -39,8 +37,7 @@
                 switch (userInput)
                 {
                     case MenuShowItems:
-                        _seller.ShowMoney();
-                        _seller.ShowBag();
+                        _seller.ShowAllAgentInfo();
                         break;
 
                     case MenuBuyItem:
@@ -48,8 +45,7 @@
                         break;
 
                     case MenuCheckBag:
-                        _byer.ShowMoney();
-                        _byer.ShowBag();
+                        _buyer.ShowAllAgentInfo();
                         break;
 
                     case MenuExit:
@@ -63,10 +59,10 @@
         {
             Item item;
 
-            if (CheckCanSell(out item))
+            if (CanSell(out item))
             {
-                _seller.RemoveItem(item);
-                _seller.TakeMoney(_byer.BuyItem(item));
+                _seller.SellItem(item);
+                _buyer.BuyItem(item);
                 Console.WriteLine($"Удачная покупка! \"{item.Name}\" теперь у Вас в сумке!");
             }
             else
@@ -75,18 +71,15 @@
             }
         }
 
-        private bool CheckCanSell(out Item item)
+        private bool CanSell(out Item item)
         {
             item = null;
 
-            if (_seller.CheckItemsAvailable())
+            if (_seller.TryGetItem(out item))
             {
-                if (_seller.TryGetItem(out item))
+                if (_buyer.CanBuy(item.Price))
                 {
-                    if (_byer.CheckCanBuy(item.Price))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 
@@ -105,12 +98,18 @@
             Money = money;
         }
 
-        public void ShowMoney()
+        public void ShowAllAgentInfo()
+        {
+            ShowMoney();
+            ShowBag();
+        }
+
+        private void ShowMoney()
         {
             Console.WriteLine("Монеты: " + Money);
         }
 
-        public void ShowBag()
+        private void ShowBag()
         {
             if (Bag.Count > 0)
             {
@@ -132,12 +131,8 @@
 
         public Seller(int money) : base(money)
         {
-        }
-
-        public void CreateSampleItems()
-        {
-        List<string> names = new List<string>(new string[] { "Пятка динозавра", "Жеваный паук", "Коготь овцы", "Рог слизня", "Волосы лысой выхухоли", "Меч из грязи", "Зерно крысы" });
-        List<int> prices = new List<int>(new int[] { 100, 15, 30, 200, 150, 500, 250 });
+            List<string> names = new List<string>(new string[] { "Пятка динозавра", "Жеваный паук", "Коготь овцы", "Рог слизня", "Волосы лысой выхухоли", "Меч из грязи", "Зерно крысы" });
+            List<int> prices = new List<int>(new int[] { 100, 15, 30, 200, 150, 500, 250 });
 
             for (int i = 0; i < names.Count; i++)
             {
@@ -145,14 +140,21 @@
             }
         }
 
-        public void TakeMoney(int money)
+        public void SellItem(Item item)
         {
-            Money = Money + money;
+            Money += item.Price;
+            Bag.Remove(item);
         }
 
         public bool TryGetItem(out Item item)
         {
             item = null;
+
+            if (Bag.Count <= 0)
+            {
+                Console.WriteLine("Продавец говорит: \"Ты уже купил у меня весь мусор! Вот же простофиля! Хе-хе...\"");
+                return false;
+            }
 
             Console.WriteLine("Введите Id предмета:");
             int id = GetNumber();
@@ -170,24 +172,6 @@
             return false;
         }
 
-        public bool CheckItemsAvailable()
-        {
-            if (Bag.Count > 0)
-            {
-                return true;
-            }
-            else
-            {
-                Console.WriteLine("Нет товаров");
-                return false;
-            }
-        }
-
-        public void RemoveItem(Item item)
-        {
-            Bag.Remove(item);
-        }
-
         private int GetNumber()
         {
             int parsedNumber = 0;
@@ -196,6 +180,7 @@
 
             while (isParsed == false)
             {
+
                 string userInput = Console.ReadLine();
                 isParsed = int.TryParse(userInput, out parsedNumber);
 
@@ -228,20 +213,19 @@
         }
     }
 
-    class Byer : Agent
+    class Buyer : Agent
     {
-        public Byer(int money) : base(money) 
+        public Buyer(int money) : base(money)
         {
         }
 
-        public int BuyItem(Item item)
+        public void BuyItem(Item item)
         {
             Bag.Add(item);
-            Money = Money - item.Price;
-            return item.Price;
+            Money -= item.Price;
         }
 
-        public bool CheckCanBuy(int price)
+        public bool CanBuy(int price)
         {
             if (price < Money)
             {
