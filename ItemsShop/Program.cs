@@ -4,22 +4,21 @@
     {
         static void Main()
         {
-            Shop menu = new Shop();
-            menu.ActivateShopMenu();
+            Menu menu = new Menu();
+            menu.ShowMenu();
         }
     }
 
-    class Shop
+    class Menu
     {
         private const string MenuShowItems = "1";
         private const string MenuBuyItem = "2";
         private const string MenuCheckBag = "3";
         private const string MenuExit = "0";
 
-        private Seller _seller = new Seller(1000);
-        private Buyer _buyer = new Buyer(1500);
+        private Shop _shop = new Shop();
 
-        public void ActivateShopMenu()
+        public void ShowMenu()
         {
             bool isExit = false;
 
@@ -37,15 +36,15 @@
                 switch (userInput)
                 {
                     case MenuShowItems:
-                        _seller.ShowAllAgentInfo();
+                        _shop.Seller.ShowAllAgentInfo();
                         break;
 
                     case MenuBuyItem:
-                        SellItem();
+                        _shop.SellItem();
                         break;
 
                     case MenuCheckBag:
-                        _buyer.ShowAllAgentInfo();
+                        _shop.Buyer.ShowAllAgentInfo();
                         break;
 
                     case MenuExit:
@@ -54,15 +53,21 @@
                 }
             }
         }
+    }
 
-        private void SellItem()
+    class Shop
+    {
+        public Seller Seller = new Seller(1000);
+        public Buyer Buyer = new Buyer(1200);
+
+        public void SellItem()
         {
             Item item;
 
             if (CanSell(out item))
             {
-                _seller.SellItem(item);
-                _buyer.BuyItem(item);
+                Seller.SellItem(item);
+                Buyer.BuyItem(item);
                 Console.WriteLine($"Удачная покупка! \"{item.Name}\" теперь у Вас в сумке!");
             }
             else
@@ -75,9 +80,9 @@
         {
             item = null;
 
-            if (_seller.TryGetItem(out item))
+            if (Seller.TryGetItem(out item))
             {
-                if (_buyer.CanBuy(item.Price))
+                if (Buyer.CanBuy(item.Price))
                 {
                     return true;
                 }
